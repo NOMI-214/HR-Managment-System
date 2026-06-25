@@ -19,10 +19,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-os.makedirs("./uploads/avatars", exist_ok=True)
-os.makedirs("./uploads/documents", exist_ok=True)
-os.makedirs("./uploads/resumes", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
+_upload_dir = os.environ.get("UPLOAD_DIR", "./uploads")
+os.makedirs(f"{_upload_dir}/avatars", exist_ok=True)
+os.makedirs(f"{_upload_dir}/documents", exist_ok=True)
+os.makedirs(f"{_upload_dir}/resumes", exist_ok=True)
+try:
+    app.mount("/uploads", StaticFiles(directory=_upload_dir), name="uploads")
+except Exception:
+    pass
 
 app.include_router(auth.router)
 app.include_router(employees.router)
