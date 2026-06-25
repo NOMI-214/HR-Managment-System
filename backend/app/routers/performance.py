@@ -41,6 +41,11 @@ async def create_review(
     current_user: User = Depends(require_hr)
 ):
     reviewer = db.query(Employee).filter(Employee.user_id == current_user.id).first()
+    if not reviewer:
+        raise HTTPException(
+            status_code=422,
+            detail="Your user account has no employee profile. Ask an admin to create one for you before submitting reviews."
+        )
 
     scores = [
         data.productivity_score,
@@ -53,7 +58,7 @@ async def create_review(
 
     review = PerformanceReview(
         company_id=current_user.company_id,
-        reviewer_id=reviewer.id if reviewer else data.employee_id,
+        reviewer_id=reviewer.id,
         overall_score=round(overall, 2),
         **data.model_dump()
     )
@@ -112,7 +117,10 @@ async def create_goal(
 ):
     emp = db.query(Employee).filter(Employee.user_id == current_user.id).first()
     if not emp:
-        raise HTTPException(status_code=404, detail="Employee not found")
+        raise HTTPException(
+            status_code=422,
+            detail="Your user account has no employee profile. Ask an admin to create one for you before setting goals."
+        )
     goal = Goal(employee_id=emp.id, company_id=emp.company_id, **data.model_dump())
     db.add(goal)
     db.commit()
@@ -157,7 +165,10 @@ async def update_goal(
 ):
     emp = db.query(Employee).filter(Employee.user_id == current_user.id).first()
     if not emp:
-        raise HTTPException(status_code=404, detail="Employee not found")
+        raise HTTPException(
+            status_code=422,
+            detail="Your user account has no employee profile. Ask an admin to create one for you."
+        )
     goal = db.query(Goal).filter(Goal.id == goal_id, Goal.employee_id == emp.id).first()
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
@@ -180,7 +191,10 @@ async def delete_goal(
 ):
     emp = db.query(Employee).filter(Employee.user_id == current_user.id).first()
     if not emp:
-        raise HTTPException(status_code=404, detail="Employee not found")
+        raise HTTPException(
+            status_code=422,
+            detail="Your user account has no employee profile. Ask an admin to create one for you."
+        )
     goal = db.query(Goal).filter(Goal.id == goal_id, Goal.employee_id == emp.id).first()
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")

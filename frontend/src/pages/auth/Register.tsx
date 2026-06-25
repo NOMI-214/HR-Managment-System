@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Zap, CheckCircle } from 'lucide-react'
@@ -14,7 +14,6 @@ interface FormData {
 }
 
 export default function Register() {
-  const navigate = useNavigate()
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)

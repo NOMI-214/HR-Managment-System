@@ -25,6 +25,10 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 def validate_password(password: str):
     if len(password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if not any(c.isupper() for c in password):
+        raise HTTPException(status_code=400, detail="Password must contain at least one uppercase letter")
+    if not any(c.isdigit() for c in password):
+        raise HTTPException(status_code=400, detail="Password must contain at least one number")
 
 
 @router.post("/register", status_code=201)
@@ -109,6 +113,10 @@ async def verify_email(data: VerifyEmailRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Verification token expired")
 
     user = db.query(User).filter(User.id == verification.user_id).first()
+    if not user:
+        db.delete(verification)
+        db.commit()
+        raise HTTPException(status_code=404, detail="User account not found")
     user.is_verified = True
     db.delete(verification)
     db.commit()
@@ -146,6 +154,10 @@ async def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_d
         raise HTTPException(status_code=400, detail="Reset token expired")
 
     user = db.query(User).filter(User.id == reset.user_id).first()
+    if not user:
+        db.delete(reset)
+        db.commit()
+        raise HTTPException(status_code=404, detail="User account not found")
     user.password_hash = hash_password(data.new_password)
     db.delete(reset)
     db.commit()
@@ -190,6 +202,8 @@ async def change_password(
     if not verify_password(data.current_password, current_user.password_hash):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     validate_password(data.new_password)
+    if verify_password(data.new_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="New password must be different from current password")
     current_user.password_hash = hash_password(data.new_password)
     db.commit()
     return {"message": "Password changed successfully"}

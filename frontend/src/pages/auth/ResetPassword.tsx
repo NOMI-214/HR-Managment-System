@@ -37,7 +37,14 @@ export default function ResetPassword() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="label">New password</label>
-              <input type="password" className="input" placeholder="Min 8 characters" {...register('new_password', { required: true, minLength: 8 })} />
+              <input type="password" className="input" placeholder="Min 8 characters"
+                {...register('new_password', {
+                  required: 'Password is required',
+                  minLength: { value: 8, message: 'Min 8 characters' },
+                  pattern: { value: /(?=.*[A-Z])(?=.*\d)/, message: 'Must include an uppercase letter and a number' }
+                })}
+              />
+              {errors.new_password && <p className="text-xs text-red-500 mt-1">{errors.new_password.message}</p>}
             </div>
             <div>
               <label className="label">Confirm password</label>

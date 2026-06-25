@@ -148,8 +148,10 @@ export default function Performance() {
                     />
                   </div>
                   <input
-                    type="range" min="0" max="100" value={g.progress}
-                    onChange={e => updateGoal.mutate({ id: g.id, data: { progress: Number(e.target.value) } })}
+                    type="range" min="0" max="100" defaultValue={g.progress}
+                    key={g.progress}
+                    onMouseUp={e => updateGoal.mutate({ id: g.id, data: { progress: Number((e.target as HTMLInputElement).value) } })}
+                    onTouchEnd={e => updateGoal.mutate({ id: g.id, data: { progress: Number((e.target as HTMLInputElement).value) } })}
                     className="w-full mt-1 accent-primary-600"
                   />
                 </div>
@@ -168,7 +170,7 @@ export default function Performance() {
 function ReviewModal({ onClose, employees }: { onClose: () => void; employees: Employee[] }) {
   const qc = useQueryClient()
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit } = useForm<Record<string, any>>({
     defaultValues: { year: new Date().getFullYear(), productivity_score: 70, communication_score: 70, teamwork_score: 70, attendance_score: 70, task_completion_score: 70 }
   })
 
@@ -179,7 +181,7 @@ function ReviewModal({ onClose, employees }: { onClose: () => void; employees: E
       toast.success('Review created')
       qc.invalidateQueries({ queryKey: ['reviews'] })
       onClose()
-    } catch { toast.error('Error') }
+    } catch (err: any) { toast.error(err?.response?.data?.detail || 'Failed to create review') }
     finally { setLoading(false) }
   }
 
@@ -252,16 +254,18 @@ function ReviewModal({ onClose, employees }: { onClose: () => void; employees: E
 function GoalModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient()
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit } = useForm()
+  const { register, handleSubmit } = useForm<Record<string, any>>()
 
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
-      await performanceApi.createGoal(data)
+      const payload = { ...data }
+      if (!payload.target_date) delete payload.target_date
+      await performanceApi.createGoal(payload)
       toast.success('Goal added')
       qc.invalidateQueries({ queryKey: ['goals'] })
       onClose()
-    } catch { toast.error('Error') }
+    } catch (err: any) { toast.error(err?.response?.data?.detail || 'Failed to add goal') }
     finally { setLoading(false) }
   }
 

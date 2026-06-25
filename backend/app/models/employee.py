@@ -50,7 +50,7 @@ class Employee(Base):
     department = relationship("Department", foreign_keys=[department_id], back_populates="employees")
     manager = relationship("Employee", remote_side=[id], foreign_keys=[manager_id])
     attendance_records = relationship("Attendance", back_populates="employee", cascade="all, delete-orphan")
-    leave_requests = relationship("LeaveRequest", back_populates="employee", cascade="all, delete-orphan")
+    leave_requests = relationship("LeaveRequest", primaryjoin="LeaveRequest.employee_id == Employee.id", foreign_keys="[LeaveRequest.employee_id]", back_populates="employee", cascade="all, delete-orphan")
     payrolls = relationship("Payroll", back_populates="employee", cascade="all, delete-orphan")
     performance_reviews = relationship("PerformanceReview", foreign_keys="PerformanceReview.employee_id", back_populates="employee")
     documents = relationship("Document", back_populates="employee", cascade="all, delete-orphan")

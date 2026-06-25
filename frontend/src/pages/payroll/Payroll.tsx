@@ -147,7 +147,7 @@ export default function PayrollPage() {
 function PayrollModal({ onClose, employees }: { onClose: () => void; employees: Employee[] }) {
   const qc = useQueryClient()
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, watch } = useForm({
+  const { register, handleSubmit, watch } = useForm<Record<string, any>>({
     defaultValues: {
       month: new Date().getMonth() + 1,
       year: new Date().getFullYear(),

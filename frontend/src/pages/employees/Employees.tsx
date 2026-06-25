@@ -150,7 +150,7 @@ export default function Employees() {
 
 function EmployeeModal({ onClose, employee, departments, employees }: { onClose: () => void; employee: Employee | null; departments: Department[]; employees: Employee[] }) {
   const qc = useQueryClient()
-  const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: employee ? { ...employee, salary: employee.salary?.toString() } : {} })
+  const { register, handleSubmit, formState: { errors } } = useForm<Record<string, any>>({ defaultValues: employee ? { ...employee, salary: employee.salary?.toString() } : {} })
   const [loading, setLoading] = useState(false)
 
   const onSubmit = async (data: any) => {

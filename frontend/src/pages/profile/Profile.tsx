@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { User, Lock, Shield, Camera } from 'lucide-react'
+import { User, Lock, Shield } from 'lucide-react'
 import { authApi } from '../../services/api'
 import { useAuthStore } from '../../store/auth'
 import { getInitials } from '../../utils'
 
 export default function Profile() {
-  const { user, setUser } = useAuthStore()
+  const { user } = useAuthStore()
   const [tab, setTab] = useState<'profile' | 'security'>('profile')
 
   const { register: rPass, handleSubmit: hPass, reset: resetPass, watch, formState: { errors: errPass } } = useForm<{current_password: string; new_password: string; confirm: string}>()
